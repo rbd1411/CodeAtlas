@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: ./backend
+    environment:
+      CODEATLAS_DATA_DIR: /app/data
+      CODEATLAS_CORS_ORIGINS: http://localhost:3000
+      CODEATLAS_EMBEDDING_PROVIDER: ${CODEATLAS_EMBEDDING_PROVIDER:-local}
+      CODEATLAS_ANSWER_PROVIDER: ${CODEATLAS_ANSWER_PROVIDER:-local}
+      CODEATLAS_EMBEDDING_MODEL: ${CODEATLAS_EMBEDDING_MODEL:-text-embedding-3-small}
+      CODEATLAS_ANSWER_MODEL: ${CODEATLAS_ANSWER_MODEL:-gpt-5.4-mini}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - codeatlas-data:/app/data
+      # Add explicit read-only repository mounts when indexing host code, for example:
+      # - C:/work:/repositories:ro
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_CODEATLAS_API_URL: http://localhost:8000/api
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  codeatlas-data:
+
